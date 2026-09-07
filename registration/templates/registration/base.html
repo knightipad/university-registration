@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบลงทะเบียนเรียน — มหาวิทยาลัยเกษตรศาสตร์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --ku-forest: #0B4228;   /* เขียวเข้ม - nav/header */
+        --ku-green: #14703D;    /* เขียวหลัก */
+        --ku-green-light: #3F9B5C;
+        --ku-sprout: #E4F1E1;   /* พื้นอ่อนสำหรับ badge/card เขียว */
+        --ku-gold: #C99A2E;     /* สีทอง - เน้นรายละเอียด */
+        --cream: #F8F6EF;       /* พื้นหลังหน้า */
+        --paper: #FFFFFF;
+        --ink: #1C2B20;
+        --ink-soft: #55645A;
+        --danger: #B3261E;
+        --danger-light: #FBEAE8;
+        --border: #DEE7DC;
+        --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: "Sarabun", "Noto Sans Thai", sans-serif;
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        line-height: 1.55;
+    }
+    h1, h2, h3, .brand-name { font-family: "Kanit", "Noto Sans Thai", sans-serif; }
+
+    /* ---------- Top nav ---------- */
+    .topbar {
+        background: linear-gradient(135deg, var(--ku-forest) 0%, var(--ku-green) 100%);
+        color: #fff;
+        border-bottom: 3px solid var(--ku-gold);
+    }
+    .topbar-inner {
+        max-width: 1000px; margin: 0 auto; padding: 14px 24px;
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; flex-shrink: 0; color: var(--ku-gold); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .brand-name { font-weight: 700; font-size: 17px; letter-spacing: .2px; }
+    .brand-sub { font-size: 12px; color: #CFE6D6; }
+    nav.links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    nav.links a {
+        color: #E9F5EC; text-decoration: none; font-weight: 500; font-size: 14.5px;
+        padding: 8px 14px; border-radius: 999px; transition: background .15s ease;
+    }
+    nav.links a:hover { background: rgba(255,255,255,.14); }
+    nav.links a.active { background: rgba(255,255,255,.18); box-shadow: inset 0 -2px 0 var(--ku-gold); }
+    .logout-btn {
+        background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff;
+        font-family: inherit; font-size: 14.5px; font-weight: 500;
+        padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: background .15s ease;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,.14); }
+
+    /* ---------- Page shell ---------- */
+    .page { max-width: 1000px; margin: 28px auto 60px; padding: 0 24px; }
+    .card {
+        background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 24px 26px; box-shadow: 0 1px 3px rgba(11,66,40,.06);
+    }
+    .page > .card + .card { margin-top: 18px; }
+    h2.page-title {
+        font-size: 22px; font-weight: 700; color: var(--ku-forest); margin: 6px 0 4px;
+        display: flex; align-items: center; gap: 10px;
+    }
+    h2.page-title .grain { color: var(--ku-gold); font-size: 18px; }
+    .meta-line { color: var(--ink-soft); font-size: 14px; margin: 4px 0 18px; }
+    .meta-line b { color: var(--ink); }
+
+    /* ---------- Messages ---------- */
+    .msg {
+        padding: 12px 16px; border-radius: 10px; margin: 0 0 16px; font-size: 14px;
+        border-left: 4px solid transparent; display: flex; align-items: center; gap: 8px;
+    }
+    .msg-success { background: var(--ku-sprout); color: #0F5C31; border-left-color: var(--ku-green); }
+    .msg-error { background: var(--danger-light); color: var(--danger); border-left-color: var(--danger); }
+
+    /* ---------- Table ---------- */
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+    table { border-collapse: collapse; width: 100%; background: var(--paper); }
+    th, td { padding: 12px 14px; text-align: left; font-size: 14px; vertical-align: top; }
+    th {
+        background: var(--ku-forest); color: #EAF4EC; font-weight: 600; font-size: 13px;
+        letter-spacing: .2px; white-space: nowrap;
+    }
+    tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #FBFBF6; }
+    .course-code { font-weight: 700; color: var(--ku-forest); }
+    .course-name { color: var(--ink-soft); font-size: 13px; }
+    .slot-line { font-size: 13px; color: var(--ink-soft); }
+    .slot-line b { color: var(--ink); }
+
+    /* ---------- Badges / pills ---------- */
+    .badge {
+        display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    }
+    .badge-ok { background: var(--ku-sprout); color: #0F5C31; }
+    .badge-full { background: var(--danger-light); color: var(--danger); }
+    .badge-neutral { background: #F0EEE6; color: var(--ink-soft); }
+
+    /* ---------- Forms / buttons ---------- */
+    .enroll-form { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .type-toggle { display: flex; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+    .type-toggle label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    button, .btn {
+        background: var(--ku-green); color: #fff; border: none; font-family: inherit; font-weight: 600;
+        font-size: 14px; padding: 8px 18px; border-radius: 999px; cursor: pointer; transition: background .15s ease, transform .05s ease;
+    }
+    button:hover { background: var(--ku-forest); }
+    button:active { transform: scale(.97); }
+    button:disabled { background: #C9CFC6; cursor: not-allowed; }
+    button.danger { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
+    button.danger:hover { background: var(--danger-light); }
+
+    input[type="text"], input[type="password"] {
+        font-family: inherit; font-size: 14px; padding: 9px 12px; border: 1px solid var(--border);
+        border-radius: 8px; width: 100%; max-width: 320px;
+    }
+    input:focus { outline: 2px solid var(--ku-gold); outline-offset: 1px; }
+    label { font-size: 14px; }
+
+    .empty-state {
+        text-align: center; padding: 40px 20px; color: var(--ink-soft);
+    }
+
+    @media (max-width: 640px) {
+        .topbar-inner { flex-direction: column; align-items: flex-start; }
+        th, td { font-size: 13px; padding: 10px; }
+    }
+</style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M24 44V26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M24 30C14 30 8 22 8 8C20 8 26 16 24 30Z" fill="currentColor" opacity="0.9"/>
+                    <path d="M24 24C34 24 40 17 40 6C29 6 23 13 24 24Z" fill="currentColor" opacity="0.65"/>
+                </svg>
+                <div class="brand-text">
+                    <span class="brand-name">ระบบลงทะเบียนเรียน</span>
+                    <span class="brand-sub">มหาวิทยาลัยเกษตรศาสตร์</span>
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+            <nav class="links">
+                <a href="{% url 'browse_sections' %}" class="{% if request.resolver_match.url_name == 'browse_sections' %}active{% endif %}">ลงทะเบียนเรียน</a>
+                <a href="{% url 'my_schedule' %}" class="{% if request.resolver_match.url_name == 'my_schedule' %}active{% endif %}">ตารางเรียนของฉัน</a>
+                <form method="post" action="{% url 'logout' %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ออกจากระบบ ({{ user.username }})</button>
+                </form>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="page">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

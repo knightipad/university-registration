@@ -1,0 +1,66 @@
+{% extends "registration/base.html" %}
+{% block content %}
+<div class="card">
+    <h2 class="page-title"><span class="grain">🌾</span> ตารางเรียนของฉัน</h2>
+    {% if student %}
+    <p class="meta-line">รวมหน่วยกิตที่นับ (ไม่รวม audit): <b>{{ total_credits }}</b> / <b>{{ student.max_credits }}</b></p>
+    {% endif %}
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+    <div class="table-wrap" style="border:none; border-radius:0;">
+        <table>
+            <thead>
+                <tr><th>วิชา</th><th>กลุ่ม</th><th>ประเภท</th><th>ตารางเรียน</th><th>ค่าลงทะเบียน</th><th>ถอนวิชา</th></tr>
+            </thead>
+            <tbody>
+            {% for e in enrollments %}
+                <tr>
+                    <td><span class="course-code">{{ e.section.subject.code }}</span><br><span class="course-name">{{ e.section.subject.name }}</span></td>
+                    <td>{{ e.section.section_number }}</td>
+                    <td>
+                        <span class="badge {% if e.enrollment_type == 'audit' %}badge-neutral{% else %}badge-ok{% endif %}">
+                            {{ e.get_enrollment_type_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% for slot in e.section.slots.all %}
+                            <div class="slot-line"><b>{{ slot.get_slot_type_display }}</b> {{ slot.get_day_of_week_display }} {{ slot.start_time }}–{{ slot.end_time }}</div>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for payment in e.payments.all %}
+                            <div class="slot-line" style="margin-bottom:4px;">
+                                {{ payment.amount }} บาท
+                                <span class="badge {% if payment.status == 'paid' %}badge-ok{% elif payment.status == 'failed' %}badge-full{% else %}badge-neutral{% endif %}">
+                                    {{ payment.get_status_display }}
+                                </span>
+                                {% if payment.status == 'pending' %}
+                                    <form method="post" style="display:inline-block; margin-top:4px;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="payment_id" value="{{ payment.id }}">
+                                        <input type="hidden" name="method" value="qr_promptpay">
+                                        <button type="submit" style="font-size:12px; padding:5px 12px;">ชำระเงิน</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <span class="badge badge-neutral">ไม่มีรายการ</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="enrollment_id" value="{{ e.id }}">
+                            <button type="submit" class="danger">ถอนวิชา</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6"><div class="empty-state">ยังไม่มีรายวิชาที่ลงทะเบียน</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

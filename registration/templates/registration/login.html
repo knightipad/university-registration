@@ -1,0 +1,30 @@
+{% extends "registration/base.html" %}
+{% block content %}
+<div style="max-width:380px; margin: 30px auto 0;">
+    <div class="card" style="text-align:center;">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:44px;height:44px;color:var(--ku-green);margin-bottom:8px;">
+            <path d="M24 44V26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M24 30C14 30 8 22 8 8C20 8 26 16 24 30Z" fill="currentColor" opacity="0.9"/>
+            <path d="M24 24C34 24 40 17 40 6C29 6 23 13 24 24Z" fill="currentColor" opacity="0.65"/>
+        </svg>
+        <h2 class="page-title" style="justify-content:center;">เข้าสู่ระบบ</h2>
+        <p class="meta-line" style="margin-bottom:20px;">ระบบลงทะเบียนเรียน มหาวิทยาลัยเกษตรศาสตร์</p>
+        <form method="post" style="display:flex; flex-direction:column; gap:14px; align-items:stretch; text-align:left;">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" style="display:block; margin-bottom:5px; font-weight:500; color:var(--ink-soft);">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <div style="color:var(--danger); font-size:13px; margin-top:4px;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div class="msg msg-error" style="margin:0;">{{ error }}</div>
+            {% endfor %}
+            <button type="submit" style="margin-top:4px;">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

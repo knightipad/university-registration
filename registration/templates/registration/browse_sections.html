@@ -1,0 +1,66 @@
+{% extends "registration/base.html" %}
+{% block content %}
+<div class="card">
+    <h2 class="page-title"><span class="grain">🌾</span> ลงทะเบียนเรียน</h2>
+    {% if semester %}
+        <p class="meta-line">ภาคการศึกษา <b>{{ semester }}</b> — เปิดลงทะเบียนถึง <b>{{ semester.registration_end|date:"d M Y H:i" }}</b></p>
+    {% else %}
+        <p class="meta-line">ยังไม่มีภาคการศึกษาที่เปิดให้ลงทะเบียนในขณะนี้</p>
+    {% endif %}
+    {% if student %}
+    <p class="meta-line">
+        นักศึกษา <b>{{ student.student_id }}</b> ·
+        ภาค <b>{{ student.program.name }}</b> ·
+        สถานะ <b>{{ student.get_status_display }}</b> ·
+        โควตาหน่วยกิต <b>{{ student.max_credits }}</b>
+    </p>
+    {% endif %}
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+    <div class="table-wrap" style="border:none; border-radius:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>วิชา</th><th>กลุ่ม</th><th>หน่วยกิต</th><th>ภาค</th><th>อาจารย์</th>
+                    <th>ตารางเรียน</th><th>ที่นั่ง</th><th>ลงทะเบียน</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for section in sections %}
+                <tr>
+                    <td><span class="course-code">{{ section.subject.code }}</span><br><span class="course-name">{{ section.subject.name }}</span></td>
+                    <td>{{ section.section_number }}</td>
+                    <td>{{ section.subject.credits }}</td>
+                    <td><span class="badge badge-neutral">{% if section.program %}{{ section.program.name }}{% else %}ทุกภาค{% endif %}</span></td>
+                    <td>{{ section.instructor_name }}</td>
+                    <td>
+                        {% for slot in section.slots.all %}
+                            <div class="slot-line"><b>{{ slot.get_slot_type_display }}</b> {{ slot.get_day_of_week_display }} {{ slot.start_time }}–{{ slot.end_time }} ({{ slot.room }})</div>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <span class="badge {% if section.is_full %}badge-full{% else %}badge-ok{% endif %}">
+                            {{ section.seats_remaining }}/{{ section.max_capacity }}
+                        </span>
+                    </td>
+                    <td>
+                        <form method="post" class="enroll-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="section_id" value="{{ section.id }}">
+                            <div class="type-toggle">
+                                <label><input type="radio" name="enrollment_type" value="credit" checked> นับหน่วยกิต</label>
+                                <label><input type="radio" name="enrollment_type" value="audit"> audit</label>
+                            </div>
+                            <button type="submit" {% if section.is_full %}disabled{% endif %}>ลงทะเบียน</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8"><div class="empty-state">ไม่มีกลุ่มเรียนที่เปิดให้ลงทะเบียนสำหรับภาค/ช่วงเวลานี้</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
